@@ -15,8 +15,6 @@ download() {
 		--input-type=list \
 		--song \
 		--extract-artist \
-		--strict-artist \
-		--strict-title \
 		--name-format "{artist} - {title}" \
 		--no-incomplete-ext \
 		--skip-music-dir $SONG_DIR \
