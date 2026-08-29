@@ -9,7 +9,7 @@ SOCKSEEK_FLAGS=(
 	--strict-title
 	--name-format "{artist} - {title}"
 	--no-incomplete-ext
-	--skip-music-dir $SONG_DIR
+	--skip-music-dir "$SONG_DIR"
 	--skip-mode-music-dir tag
 	-o "$SONG_DIR"
 )
@@ -23,7 +23,7 @@ print_usage() {
 
 download() {
 	if [ "$#" -eq 0 ]; then
-		sockseek $LIST_FILE --input-type=list "${SOCKSEEK_FLAGS[@]}"
+		sockseek "$LIST_FILE" --input-type=list "${SOCKSEEK_FLAGS[@]}"
 		return
 	fi
 
@@ -44,7 +44,7 @@ add() {
 			continue
 		fi
 		download "$song" || continue
-		echo "\"$song\"" >> $LIST_FILE
+		echo "\"$song\"" >> "$LIST_FILE"
 		added+=("$song")
 	done
 
@@ -67,7 +67,7 @@ if [ "$#" -eq 0 ]; then
 	exit 1
 fi
 
-if declare -F $1 > /dev/null; then
+if declare -F "$1" > /dev/null; then
 	command="$1"
 	shift
 	"$command" "$@"
