@@ -2,8 +2,6 @@
 
 LIST_FILE="songlist"
 SONG_DIR="songs"
-DOWNLOAD_LIST_FILE="downloaded"
-DOWNLOAD_COMMAND="sockseek --song -o $SONG_DIR"
 
 print_usage() {
 	echo "Usage: $0 <command>"
@@ -13,15 +11,17 @@ print_usage() {
 }
 
 download() {
-	while IFS= read -r song; do
-		[ -z "$song" ] && continue
-		if grep -qxF "$song" "$DOWNLOAD_LIST_FILE" 2>/dev/null; then
-			continue
-		fi
-		if $DOWNLOAD_COMMAND "$song"; then
-			echo "$song" >> "$DOWNLOAD_LIST_FILE"
-		fi
-	done < "$LIST_FILE"
+	sockseek $LIST_FILE \
+		--input-type=list \
+		--song \
+		--extract-artist \
+		--strict-artist \
+		--strict-title \
+		--name-format "{artist} - {title}" \
+		--no-incomplete-ext \
+		--skip-music-dir $SONG_DIR \
+		--skip-mode-music-dir tag \
+		-o "$SONG_DIR"
 }
 
 add() {
@@ -31,7 +31,7 @@ add() {
 			echo "Already in list, skipping: $song"
 			continue
 		fi
-		echo "$song" >> $LIST_FILE
+		echo "\"$song\"" >> $LIST_FILE
 		added+=("$song")
 	done
 
