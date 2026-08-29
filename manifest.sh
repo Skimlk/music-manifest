@@ -2,6 +2,17 @@
 
 LIST_FILE="songlist"
 SONG_DIR="songs"
+SOCKSEEK_FLAGS=(
+	--song
+	--extract-artist
+	--strict-artist
+	--strict-title
+	--name-format "{artist} - {title}"
+	--no-incomplete-ext
+	--skip-music-dir $SONG_DIR
+	--skip-mode-music-dir tag
+	-o "$SONG_DIR"
+)
 
 print_usage() {
 	echo "Usage: $0 <command>"
@@ -11,24 +22,28 @@ print_usage() {
 }
 
 download() {
-	sockseek $LIST_FILE \
-		--input-type=list \
-		--song \
-		--extract-artist \
-		--name-format "{artist} - {title}" \
-		--no-incomplete-ext \
-		--skip-music-dir $SONG_DIR \
-		--skip-mode-music-dir tag \
-		-o "$SONG_DIR"
+	if [ "$#" -eq 0 ]; then
+		sockseek $LIST_FILE --input-type=list "${SOCKSEEK_FLAGS[@]}"
+		return
+	fi
+
+	for song in "$@"; do
+		sockseek "$song" "${SOCKSEEK_FLAGS[@]}" && continue
+		echo "Could not download: $song"
+		return 1
+	done
+
+	return 0
 }
 
 add() {
 	added=()
 	for song in "$@"; do
-		if grep -qxF "$song" "$LIST_FILE"; then
+		if grep -qxF "\"$song\"" "$LIST_FILE"; then
 			echo "Already in list, skipping: $song"
 			continue
 		fi
+		download "$song" || continue
 		echo "\"$song\"" >> $LIST_FILE
 		added+=("$song")
 	done
@@ -44,9 +59,7 @@ add() {
 	printf -v song_list '%s, ' "${added[@]}"
 	song_list="${song_list%, }"
 	git commit -m "Added: $song_list"
-	git push	
-
-	download
+	git push
 }
 
 if [ "$#" -eq 0 ]; then
