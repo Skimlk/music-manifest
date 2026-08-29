@@ -40,10 +40,13 @@ add() {
 		exit 0
 	fi
 
+	sort -u -o "$LIST_FILE" "$LIST_FILE"
+
 	git add "$LIST_FILE"
 	printf -v song_list '%s, ' "${added[@]}"
 	song_list="${song_list%, }"
-	git commit -m "Added $song_list"
+	git commit -m "Added: $song_list"
+	git push	
 
 	download
 }
