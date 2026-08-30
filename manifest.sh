@@ -5,7 +5,6 @@ SONG_DIR="songs"
 SOCKSEEK_FLAGS=(
 	--song
 	--extract-artist
-	--strict-artist
 	--strict-title
 	--name-format "{artist} - {title}"
 	--no-incomplete-ext
